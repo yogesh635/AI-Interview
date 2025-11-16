@@ -1,0 +1,171 @@
+{
+  "info": {
+    "name": "Session Management API",
+    "_postman_id": "c1f8d7e1-8f1c-4a7e-bdb3-54321example",
+    "description": "Postman collection for testing Emotion Detection Session Management API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Start Session",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/session/start",
+          "host": ["{{baseUrl}}"],
+          "path": ["session", "start"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "pm.test(\"Has session_id\", function () {",
+              "    pm.expect(json).to.have.property(\"session_id\");",
+              "});",
+              "",
+              "// Save session_id to environment",
+              "if (json.session_id) {",
+              "    pm.environment.set(\"session_id\", json.session_id);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Processing Session",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/session/processing/{{session_id}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["session", "processing", "{{session_id}}"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Session Processing\", function () {",
+              "    pm.expect(pm.response.json().message).to.include(\"processing\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Complete Session",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/session/complete/{{session_id}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["session", "complete", "{{session_id}}"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Session Completed\", function () {",
+              "    pm.expect(pm.response.json().message).to.include(\"completed\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get Session Details",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/session/{{session_id}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["session", "{{session_id}}"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+              "let json = pm.response.json();",
+              "pm.test(\"Has timestamps\", () => {",
+              "    pm.expect(json.start_time).to.be.a('string');",
+              "    pm.expect(json.processing_time).to.be.a('string');",
+              "    pm.expect(json.completed_time).to.be.a('string');",
+              "});",
+              "pm.test(\"Status Completed\", () => {",
+              "    pm.expect(json.status).to.eql('completed');",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "authToken",
+      "value": "1"
+    },
+    {
+      "key": "session_id",
+      "value": ""
+    }
+  ]
+}
